@@ -19,6 +19,8 @@ import java.util.List;
 public class Booking {
     private int id;
     private String bookingName;
+    private String bookingUser;
+    private BookingStatus status;
     private LocalDate checkinExpectedDate;
     private LocalDate checkoutExpectedDate;
     private double bookingPrice;
@@ -29,6 +31,13 @@ public class Booking {
     private Room room;
     private List<BookingExtraCost> costsList;
 
+    public void calculateBookingPrice() {
+        bookingPrice = room.getMaintenanceCost();
+        for (BookingExtraCost cost : costsList) {
+            bookingPrice += cost.getRealPrice();
+        }
+    }
+
     public void validate() throws InvalidBookingFormatException, LogicBookingException {
         validateDates();
         validateBookingPrice();
@@ -37,13 +46,16 @@ public class Booking {
 
     private void validateDates() throws LogicBookingException {
         if (checkinExpectedDate.isAfter(checkoutExpectedDate)) {
-            throw new LogicBookingException("Checkin date should be before checkout date");
+            throw new LogicBookingException("Checkin expected date should be before checkout expected date");
         }
         if (checkinDate != null && checkinDate.isBefore(checkinExpectedDate)) {
-            throw new LogicBookingException("Checkin date should be after checkin expected date");
+            throw new LogicBookingException("Checkin date should be after or same checkin expected expected date");
         }
         if (checkoutDate != null && checkoutDate.isBefore(checkoutExpectedDate)) {
             throw new LogicBookingException("Checkout date should be after checkout expected date");
+        }
+        if (checkinDate != null && checkoutDate != null && checkinDate.isAfter(checkoutDate)) {
+            throw new LogicBookingException("Checkin date should be before checkout date");
         }
     }
 
@@ -59,13 +71,6 @@ public class Booking {
         }
         if (room == null) {
             throw new InvalidBookingFormatException("Room should be informed");
-        }
-    }
-
-    public void calculateBookingPrice() {
-        bookingPrice = room.getMaintenanceCost();
-        for (BookingExtraCost cost : costsList) {
-            bookingPrice += cost.getRealPrice();
         }
     }
 
