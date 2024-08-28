@@ -10,6 +10,7 @@ public class MakeBookingUseCase implements MakeBookingInputPort {
 
     private BookingDbOutputAdapter bookingDbOutputAdapter;
 
+
     @Autowired
     public MakeBookingUseCase(BookingDbOutputAdapter bookingDbOutputAdapter) {
         this.bookingDbOutputAdapter = bookingDbOutputAdapter;

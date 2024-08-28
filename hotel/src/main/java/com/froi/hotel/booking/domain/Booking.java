@@ -20,6 +20,7 @@ public class Booking {
     private int id;
     private String bookingName;
     private String bookingUser;
+    private LocalDate bookingDate;
     private BookingStatus status;
     private LocalDate checkinExpectedDate;
     private LocalDate checkoutExpectedDate;

@@ -15,7 +15,7 @@ public class Room {
     private String code;
     private Double maintenanceCost;
     private Integer capacity;
-    private Hotel hotel;
+    private Integer hotelId;
 
     public void validate() throws InvalidRoomFormatException {
         if (maintenanceCost < 0) {

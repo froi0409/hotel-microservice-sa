@@ -50,4 +50,7 @@ public class BookingDbEntity {
 
     @Column(name = "booking_user")
     private String bookingUser;
+
+    @Column(name = "booking_date")
+    private LocalDate bookingDate;
 }
