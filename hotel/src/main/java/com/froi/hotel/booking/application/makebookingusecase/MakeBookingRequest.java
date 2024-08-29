@@ -5,6 +5,7 @@ import lombok.Value;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 @Value
 public class MakeBookingRequest {
@@ -15,6 +16,7 @@ public class MakeBookingRequest {
     String checkoutExpectedDate;
     String bookingName;
     String bookingUser;
+    List<Integer> extraCosts;
 
     public static Booking convertToDomain(MakeBookingRequest booking) throws DateTimeParseException {
         LocalDate checkinExpectedDate = LocalDate.parse(booking.getCheckinExpectedDate());

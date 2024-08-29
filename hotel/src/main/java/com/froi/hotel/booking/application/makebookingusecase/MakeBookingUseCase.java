@@ -2,6 +2,7 @@ package com.froi.hotel.booking.application.makebookingusecase;
 
 import com.froi.hotel.booking.application.exceptions.BookingException;
 import com.froi.hotel.booking.domain.Booking;
+import com.froi.hotel.booking.domain.BookingExtraCost;
 import com.froi.hotel.booking.infrastructure.inputports.MakeBookingInputPort;
 import com.froi.hotel.booking.infrastructure.outputadapters.BookingDbOutputAdapter;
 import com.froi.hotel.common.UseCase;
@@ -13,6 +14,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @UseCase
@@ -39,7 +41,12 @@ public class MakeBookingUseCase implements MakeBookingInputPort {
         Hotel hotel = hotelDbOutputAdapter
                 .findHotelById(makeBookingRequest.getHotel())
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Hotel %s not found", makeBookingRequest.getHotel())));
-
+        List<BookingExtraCost> extraCosts = new ArrayList<>();
+        for (Integer extraCostId : makeBookingRequest.getExtraCosts()) {
+            BookingExtraCost extraCost = bookingDbOutputAdapter.findExtraCost(extraCostId)
+                    .orElseThrow(() -> new EntityNotFoundException(String.format("Extra cost %s not found", extraCostId)));
+            extraCosts.add(extraCost);
+        }
         if (makeBookingRequest.getBookingUser() != null) {
             // verifica que el usuario exista
         }
@@ -55,6 +62,7 @@ public class MakeBookingUseCase implements MakeBookingInputPort {
         Booking booking = MakeBookingRequest.convertToDomain(makeBookingRequest);
         booking.setRoom(room);
         booking.setHotel(hotel);
+        booking.setCostsList(extraCosts);
 
         bookingDbOutputAdapter.makeBooking(booking);
     }

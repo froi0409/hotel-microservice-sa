@@ -1,5 +1,6 @@
 package com.froi.hotel.booking.infrastructure.outputadapters;
 
+import com.froi.hotel.booking.domain.BookingExtraCost;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -22,4 +23,12 @@ public class BookingExtraCostDbEntity {
 
     @Column
     public String description;
+
+    public BookingExtraCost toDomain() {
+        return BookingExtraCost.builder()
+                .id(id)
+                .realPrice(price)
+                .build();
+    }
+
 }
