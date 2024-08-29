@@ -63,6 +63,7 @@ public class MakeBookingUseCase implements MakeBookingInputPort {
         booking.setRoom(room);
         booking.setHotel(hotel);
         booking.setCostsList(extraCosts);
+        booking.calculateBookingPrice();
 
         bookingDbOutputAdapter.makeBooking(booking);
     }
