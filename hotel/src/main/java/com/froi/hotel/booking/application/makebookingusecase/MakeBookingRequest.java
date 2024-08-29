@@ -9,7 +9,7 @@ import java.time.format.DateTimeParseException;
 @Value
 public class MakeBookingRequest {
     String roomCode;
-    String hotel;
+    Integer hotel;
     String note;
     String checkinExpectedDate;
     String checkoutExpectedDate;

@@ -21,7 +21,7 @@ public class RoomDbOutputAdapter implements FindRoomByIdOutputPort {
     }
 
     @Override
-    public Optional<Room> findRoomById(int hotel, String code) throws IllegalEnumException {
+    public Optional<Room> findRoomById(int hotel, String code) {
         return roomDbEntityRepository.findById(new RoomDbEntityPK(code, hotel))
                 .map(RoomDbEntity::toDomain);
     }

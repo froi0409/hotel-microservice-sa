@@ -1,9 +1,11 @@
 package com.froi.hotel.booking.infrastructure.outputadapters;
 
+import com.froi.hotel.booking.domain.Booking;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,11 +17,12 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class BookingDbEntity {
 
     @Id
     @Column
-    private String id;
+    private Integer id;
 
     @Column(name = "room_code")
     private String roomCode;
@@ -53,4 +56,36 @@ public class BookingDbEntity {
 
     @Column(name = "booking_date")
     private LocalDate bookingDate;
+
+    public Booking toDomain() {
+        return Booking.builder()
+                .id(id)
+                .checkinExpectedDate(checkinExpectedDate)
+                .checkoutExpectedDate(checkoutExpectedDate)
+                .checkinDate(checkinDate)
+                .checkoutDate(checkoutDate)
+                .bookingPrice(bookingPrice)
+                .note(note)
+                .bookingName(bookingName)
+                .bookingUser(bookingUser)
+                .bookingDate(bookingDate)
+                .build();
+    }
+
+    public static BookingDbEntity fromDomain(Booking booking) {
+        return new BookingDbEntity(
+                booking.getId(),
+                booking.getRoom().getCode(),
+                booking.getHotel().getId(),
+                booking.getCheckinExpectedDate(),
+                booking.getCheckoutExpectedDate(),
+                booking.getCheckinDate(),
+                booking.getCheckoutDate(),
+                booking.getBookingPrice(),
+                booking.getNote(),
+                booking.getBookingName(),
+                booking.getBookingUser(),
+                booking.getBookingDate());
+    }
+
 }
