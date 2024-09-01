@@ -1,6 +1,7 @@
 package com.froi.hotel.common.infrastructure.restapi;
 
 import com.froi.hotel.booking.application.exceptions.BookingException;
+import com.froi.hotel.booking.domain.exceptions.LogicBookingException;
 import com.froi.hotel.common.exceptions.DuplicatedEntityException;
 import com.froi.hotel.common.exceptions.IllegalEnumException;
 import jakarta.persistence.EntityNotFoundException;
@@ -27,6 +28,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BookingException.class)
     public ResponseEntity<String> handleBookingException(BookingException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler(LogicBookingException.class)
+    public ResponseEntity<String> handleLogicBookingException(LogicBookingException e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());

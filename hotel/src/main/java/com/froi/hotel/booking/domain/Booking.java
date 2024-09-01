@@ -11,13 +11,14 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 @Builder
 @DomainEntity
 public class Booking {
-    private int id;
+    private UUID id;
     private String bookingName;
     private String bookingUser;
     private LocalDate bookingDate;

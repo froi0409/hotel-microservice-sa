@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Table(name = "booking", schema = "public")
@@ -22,7 +23,7 @@ public class BookingDbEntity {
 
     @Id
     @Column
-    private Integer id;
+    private String id;
 
     @Column(name = "room_code")
     private String roomCode;
@@ -59,7 +60,7 @@ public class BookingDbEntity {
 
     public Booking toDomain() {
         return Booking.builder()
-                .id(id)
+                .id(UUID.fromString(id))
                 .checkinExpectedDate(checkinExpectedDate)
                 .checkoutExpectedDate(checkoutExpectedDate)
                 .checkinDate(checkinDate)
@@ -74,7 +75,7 @@ public class BookingDbEntity {
 
     public static BookingDbEntity fromDomain(Booking booking) {
         return new BookingDbEntity(
-                booking.getId(),
+                UUID.randomUUID().toString(),
                 booking.getRoom().getCode(),
                 booking.getHotel().getId(),
                 booking.getCheckinExpectedDate(),

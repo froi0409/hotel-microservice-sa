@@ -6,6 +6,7 @@ import lombok.Value;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.UUID;
 
 @Value
 public class MakeBookingRequest {
@@ -23,6 +24,7 @@ public class MakeBookingRequest {
         LocalDate checkoutExpectedDate = LocalDate.parse(booking.getCheckoutExpectedDate());
 
         return Booking.builder()
+                .id(UUID.randomUUID())
                 .note(booking.getNote())
                 .checkinExpectedDate(checkinExpectedDate)
                 .checkoutExpectedDate(checkoutExpectedDate)

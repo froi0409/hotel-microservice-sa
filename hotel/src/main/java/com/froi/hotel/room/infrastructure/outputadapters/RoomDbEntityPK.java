@@ -16,7 +16,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoomDbEntityPK implements Serializable {
-    @Column(name = "room_code")
+    @Column(name = "code")
     private String roomCode;
 
     @Column(name = "hotel")

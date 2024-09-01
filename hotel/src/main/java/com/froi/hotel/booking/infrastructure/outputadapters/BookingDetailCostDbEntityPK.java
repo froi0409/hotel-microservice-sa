@@ -19,5 +19,5 @@ public class BookingDetailCostDbEntityPK implements Serializable {
     private Integer bookingExtraCost;
 
     @Column(name = "booking")
-    private Integer booking;
+    private String booking;
 }
