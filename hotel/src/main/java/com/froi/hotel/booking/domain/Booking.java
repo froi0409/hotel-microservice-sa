@@ -50,6 +50,9 @@ public class Booking {
         if (checkinExpectedDate.isAfter(checkoutExpectedDate)) {
             throw new LogicBookingException("Checkin expected date should be before checkout expected date");
         }
+        if (checkinExpectedDate.isEqual(checkoutExpectedDate)) {
+            throw new LogicBookingException("Checkin expected date should be different from checkout expected date");
+        }
         if (checkinDate != null && checkinDate.isBefore(checkinExpectedDate)) {
             throw new LogicBookingException("Checkin date should be after or same checkin expected expected date");
         }
