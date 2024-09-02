@@ -6,5 +6,5 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface FindBookingsOutputAdapter {
-    List<Booking> findBookingBetweenCheckinAndCheckout(LocalDate checkin, LocalDate checkout);
+    List<Booking> findBookingBetweenCheckinAndCheckout(Integer hotel, String room, LocalDate checkin, LocalDate checkout);
 }

@@ -29,9 +29,9 @@ public class BookingDbOutputAdapter implements MakeBookingOutputPort, FindBookin
 
 
     @Override
-    public List<Booking> findBookingBetweenCheckinAndCheckout(LocalDate checkin, LocalDate checkout) {
+    public List<Booking> findBookingBetweenCheckinAndCheckout(Integer hotel, String room, LocalDate checkin, LocalDate checkout) {
         return bookingDbEntityRepository
-                .findBookingsBetweenDates(checkin, checkout)
+                .findBookingsBetweenDates(hotel, room, checkin, checkout)
                 .stream()
                 .map(BookingDbEntity::toDomain)
                 .collect(Collectors.toList());

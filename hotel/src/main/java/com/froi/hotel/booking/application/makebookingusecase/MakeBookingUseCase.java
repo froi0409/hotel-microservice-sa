@@ -29,6 +29,10 @@ public class MakeBookingUseCase implements MakeBookingInputPort {
 
     private final int START_SPECIAL_SEASON = 9; // September
     private final int END_SPECIAL_SEASON = 12; // December
+    private final int NORMAL_SEASON = 1;
+    private final int SPECIAL_SEASON = 2;
+
+
     @Autowired
     public MakeBookingUseCase(BookingDbOutputAdapter bookingDbOutputAdapter, RoomDbOutputAdapter roomDbOutputAdapter, HotelDbOutputAdapter hotelDbOutputAdapter) {
         this.bookingDbOutputAdapter = bookingDbOutputAdapter;
@@ -38,41 +42,14 @@ public class MakeBookingUseCase implements MakeBookingInputPort {
 
     @Override
     public void makeBooking(MakeBookingRequest makeBookingRequest) throws BookingException, LogicBookingException, InvalidBookingFormatException {
-        Room room = roomDbOutputAdapter
-                .findRoomById(makeBookingRequest.getHotel(), makeBookingRequest.getRoomCode())
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Room %s not found", makeBookingRequest.getRoomCode())));
-        Hotel hotel = hotelDbOutputAdapter
-                .findHotelById(makeBookingRequest.getHotel())
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Hotel %s not found", makeBookingRequest.getHotel())));
-        List<BookingExtraCost> extraCosts = new ArrayList<>();
-        if (isSpecialDate()) {
-            BookingExtraCost specialSeasonExtraCost = bookingDbOutputAdapter.findExtraCost(2)
-                    .orElseThrow(() -> new EntityNotFoundException("Special season extra cost not found"));
-            extraCosts.add(specialSeasonExtraCost);
-        } else {
-            BookingExtraCost normalSeasonExtraConst = bookingDbOutputAdapter.findExtraCost(1)
-                    .orElseThrow(() -> new EntityNotFoundException("Normal season extra cost not found"));
-            extraCosts.add(normalSeasonExtraConst);
-        }
-        if (makeBookingRequest.getExtraCosts() != null) {
-            for (Integer extraCostId : makeBookingRequest.getExtraCosts()) {
-                BookingExtraCost extraCost = bookingDbOutputAdapter.findExtraCost(extraCostId)
-                        .orElseThrow(() -> new EntityNotFoundException(String.format("Extra cost %s not found", extraCostId)));
-                extraCosts.add(extraCost);
-            }
-        }
-        if (makeBookingRequest.getBookingUser() != null) {
-            // verifica que el usuario exista
-        }
-
         LocalDate checkin = LocalDate.parse(makeBookingRequest.getCheckinExpectedDate());
         LocalDate checkout = LocalDate.parse(makeBookingRequest.getCheckoutExpectedDate());
-        List<Booking> bookingsBetweenCheckinAndCheckout = bookingDbOutputAdapter
-                .findBookingBetweenCheckinAndCheckout(checkin, checkout);
-        System.out.println(bookingsBetweenCheckinAndCheckout.size());
-        if (!bookingsBetweenCheckinAndCheckout.isEmpty()) {
-            throw new BookingException("There are bookings between checkin (" + checkin + ") and checkout (" + checkout + ") dates");
-        }
+
+        Hotel hotel = validateHotel(makeBookingRequest);
+        Room room = validateRoom(makeBookingRequest);
+        List<BookingExtraCost> extraCosts = handleExtraCosts(makeBookingRequest, checkin, checkout);
+
+        validateBookingsBetweenCheckinAndCheckout(hotel, room, checkin, checkout);
 
         Booking booking = MakeBookingRequest.convertToDomain(makeBookingRequest);
         booking.setRoom(room);
@@ -84,9 +61,89 @@ public class MakeBookingUseCase implements MakeBookingInputPort {
         bookingDbOutputAdapter.makeBooking(booking);
     }
 
-    private boolean isSpecialDate() {
-        LocalDate currentDate = LocalDate.now();
-        int currentMonth = currentDate.getMonthValue();
+    private ArrayList<BookingExtraCost> handleExtraCosts(MakeBookingRequest makeBookingRequest, LocalDate checkin, LocalDate checkout) {
+        ArrayList<BookingExtraCost> extraCosts = new ArrayList<>();
+
+        addNormalDateCosts(extraCosts, checkin, checkout);
+        addSpecialDateCosts(extraCosts, checkin, checkout);
+
+        if (makeBookingRequest.getExtraCosts() != null) {
+            for (Integer extraCostId : makeBookingRequest.getExtraCosts()) {
+                BookingExtraCost extraCost = bookingDbOutputAdapter.findExtraCost(extraCostId)
+                        .orElseThrow(() -> new EntityNotFoundException(String.format("Extra cost %s not found", extraCostId)));
+                extraCosts.add(extraCost);
+            }
+        }
+
+        return extraCosts;
+    }
+
+    private void addNormalDateCosts(ArrayList<BookingExtraCost> extraCosts, LocalDate checkin, LocalDate checkout) {
+        LocalDate date = checkin;
+        double normalExtraCost = 0.00;
+
+        BookingExtraCost normalSeasonExtraCost = bookingDbOutputAdapter.findExtraCost(NORMAL_SEASON)
+                .orElseThrow(() -> new EntityNotFoundException("Normal season extra cost not found"));
+
+        while (!date.isAfter(checkout) && !date.isEqual(checkout)) {
+            if (!isSpecialDate(date)) {
+                normalExtraCost += normalSeasonExtraCost.getRealPrice();
+            }
+            date = date.plusDays(1);
+        }
+        normalSeasonExtraCost.setRealPrice(normalExtraCost);
+        extraCosts.add(normalSeasonExtraCost);
+    }
+
+    private void addSpecialDateCosts(ArrayList<BookingExtraCost> extraCosts, LocalDate checkin, LocalDate checkout) {
+        LocalDate date = checkin;
+        double specialExtraCost = 0.00;
+
+        BookingExtraCost specialSeasonExtraCost = bookingDbOutputAdapter.findExtraCost(SPECIAL_SEASON)
+                .orElseThrow(() -> new EntityNotFoundException("Special season extra cost not found"));
+
+        while (!date.isAfter(checkout) && !date.isEqual(checkout)) {
+            if (isSpecialDate(date)) {
+                specialExtraCost += specialSeasonExtraCost.getRealPrice();
+                System.out.println("se suma");
+            }
+            System.out.println("special");
+            date = date.plusDays(1);
+        }
+        specialSeasonExtraCost.setRealPrice(specialExtraCost);
+        extraCosts.add(specialSeasonExtraCost);
+    }
+
+    private Hotel validateHotel(MakeBookingRequest makeBookingRequest) {
+        return hotelDbOutputAdapter
+                .findHotelById(makeBookingRequest.getHotel())
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Hotel %s not found", makeBookingRequest.getHotel())));
+    }
+
+    private Room validateRoom(MakeBookingRequest makeBookingRequest) {
+        return roomDbOutputAdapter
+                .findRoomById(makeBookingRequest.getHotel(), makeBookingRequest.getRoomCode())
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Room %s not found", makeBookingRequest.getRoomCode())));
+    }
+
+    private void validateBookingsBetweenCheckinAndCheckout(Hotel hotel, Room room, LocalDate checkin, LocalDate checkout) throws BookingException {
+        List<Booking> bookingsBetweenCheckinAndCheckout = bookingDbOutputAdapter
+                .findBookingBetweenCheckinAndCheckout(hotel.getId(), room.getCode(), checkin, checkout);
+        System.out.println(bookingsBetweenCheckinAndCheckout.size());
+        if (!bookingsBetweenCheckinAndCheckout.isEmpty()) {
+            throw new BookingException("There are bookings between checkin (" + checkin + ") and checkout (" + checkout + ") dates");
+        }
+    }
+
+    private String validateUser(MakeBookingRequest makeBookingRequest) {
+        if (makeBookingRequest.getBookingUser() != null) {
+            // validation logic
+        }
+        return null;
+    }
+
+    private boolean isSpecialDate(LocalDate dateToCheck) {
+        int currentMonth = dateToCheck.getMonthValue();
         return currentMonth >= START_SPECIAL_SEASON && currentMonth <= END_SPECIAL_SEASON;
     }
 

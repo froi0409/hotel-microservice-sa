@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BookingDbEntityRepository extends JpaRepository<BookingDbEntity, Long> {
-    @Query(value = "SELECT * FROM booking WHERE checkin_expected_date > :checkin AND checkout_expected_date < :checkout", nativeQuery = true)
-    List<BookingDbEntity> findBookingsBetweenDates(@Param("checkin") LocalDate checkin, @Param("checkout") LocalDate checkout);
+    @Query(value = "SELECT * FROM booking WHERE room_code = :room and hotel = :hotel" +
+            " and (checkin_expected_date between :checkin and :checkout " +
+            " or checkout_expected_date between  :checkin and :checkout)", nativeQuery = true)
+    List<BookingDbEntity> findBookingsBetweenDates(@Param("hotel") Integer hotel, @Param("room") String room, @Param("checkin") LocalDate checkin, @Param("checkout") LocalDate checkout);
 }
