@@ -4,6 +4,7 @@ import com.froi.hotel.booking.application.exceptions.BookingException;
 import com.froi.hotel.booking.domain.exceptions.LogicBookingException;
 import com.froi.hotel.common.exceptions.DuplicatedEntityException;
 import com.froi.hotel.common.exceptions.IllegalEnumException;
+import com.froi.hotel.common.exceptions.NetworkMicroserviceException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleDuplicatedEntityException(DuplicatedEntityException e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler(NetworkMicroserviceException.class)
+    public ResponseEntity<String> handleNetworkMicroserviceException(NetworkMicroserviceException e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(e.getMessage());
     }
 

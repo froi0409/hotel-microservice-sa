@@ -1,11 +1,8 @@
-package com.froi.hotel.room.infrastructure.outputadapters;
+package com.froi.hotel.room.infrastructure.outputadapters.db;
 
 import com.froi.hotel.common.PersistenceAdapter;
-import com.froi.hotel.common.exceptions.IllegalEnumException;
-import com.froi.hotel.hotel.infrastructure.outputports.FindHotelByIdOutputPort;
 import com.froi.hotel.room.domain.Room;
-import com.froi.hotel.room.domain.RoomType;
-import com.froi.hotel.room.infrastructure.outputports.FindRoomByIdOutputPort;
+import com.froi.hotel.room.infrastructure.outputports.db.FindRoomByIdOutputPort;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;

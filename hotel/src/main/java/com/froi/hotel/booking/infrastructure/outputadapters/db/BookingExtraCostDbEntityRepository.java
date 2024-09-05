@@ -1,4 +1,4 @@
-package com.froi.hotel.booking.infrastructure.outputadapters;
+package com.froi.hotel.booking.infrastructure.outputadapters.db;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

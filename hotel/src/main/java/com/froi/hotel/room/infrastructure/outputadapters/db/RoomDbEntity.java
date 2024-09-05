@@ -1,8 +1,7 @@
-package com.froi.hotel.room.infrastructure.outputadapters;
+package com.froi.hotel.room.infrastructure.outputadapters.db;
 
 
 import com.froi.hotel.room.domain.Room;
-import com.froi.hotel.room.domain.RoomType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

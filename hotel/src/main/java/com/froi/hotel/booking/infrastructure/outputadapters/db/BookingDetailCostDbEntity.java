@@ -1,5 +1,6 @@
-package com.froi.hotel.booking.infrastructure.outputadapters;
+package com.froi.hotel.booking.infrastructure.outputadapters.db;
 
+import com.froi.hotel.booking.domain.BookingExtraCost;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,5 +19,12 @@ public class BookingDetailCostDbEntity {
 
     @Column(name = "real_price")
     private Double realPrice;
+
+    public BookingExtraCost toDomain() {
+        return BookingExtraCost.builder()
+                .id(id.getBookingExtraCost())
+                .realPrice(realPrice)
+                .build();
+    }
 
 }

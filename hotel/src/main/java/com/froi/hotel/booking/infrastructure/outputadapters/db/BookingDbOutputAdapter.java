@@ -1,10 +1,13 @@
-package com.froi.hotel.booking.infrastructure.outputadapters;
+package com.froi.hotel.booking.infrastructure.outputadapters.db;
 
+import com.froi.hotel.booking.application.exceptions.BookingException;
 import com.froi.hotel.booking.domain.Booking;
 import com.froi.hotel.booking.domain.BookingExtraCost;
-import com.froi.hotel.booking.infrastructure.outputports.FindBookingsOutputAdapter;
+import com.froi.hotel.booking.infrastructure.outputports.FindBookingsOutputPort;
 import com.froi.hotel.booking.infrastructure.outputports.MakeBookingOutputPort;
+import com.froi.hotel.booking.infrastructure.outputports.PayCheckinOutputPort;
 import com.froi.hotel.common.PersistenceAdapter;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +17,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @PersistenceAdapter
-public class BookingDbOutputAdapter implements MakeBookingOutputPort, FindBookingsOutputAdapter {
+public class BookingDbOutputAdapter implements MakeBookingOutputPort, FindBookingsOutputPort, PayCheckinOutputPort {
 
     private BookingDbEntityRepository bookingDbEntityRepository;
     private BookingDetailCostDbEntityRepository bookingDetailCostDbEntityRepository;
@@ -35,6 +38,29 @@ public class BookingDbOutputAdapter implements MakeBookingOutputPort, FindBookin
                 .stream()
                 .map(BookingDbEntity::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Booking findHotelBooking(String bookingId, String hotelId) {
+        return bookingDbEntityRepository.findFirstByIdAndHotel(bookingId, Integer.valueOf(hotelId))
+                .map(BookingDbEntity::toDomain)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Booking with id %s not found in hotel %s", bookingId, hotelId)));
+    }
+
+    @Override
+    public List<BookingExtraCost> findBookingExtraCosts(String bookingId) throws BookingException {
+        List<BookingExtraCost> extraCosts = bookingDetailCostDbEntityRepository.findAllByIdBooking(bookingId)
+                .stream()
+                .map(BookingDetailCostDbEntity::toDomain)
+                .toList();
+
+        for (BookingExtraCost extraCost : extraCosts) {
+            BookingExtraCostDbEntity dbEntity = bookingExtraCostDbEntityRepository.findById(extraCost.getId())
+                    .orElseThrow(() -> new BookingException(String.format("Extra cost with id %s not found", extraCost.getId())));
+            extraCost.setDescription(dbEntity.getDescription());
+        }
+
+        return extraCosts;
     }
 
     @Override
@@ -62,5 +88,13 @@ public class BookingDbOutputAdapter implements MakeBookingOutputPort, FindBookin
             bookingDetailCostDbEntityRepository.save(detailCostDbEntity);
         }
         return bookingDbEntity.toDomain();
+    }
+
+    @Override
+    public void updateCheckinDate(String bookingId) {
+        BookingDbEntity bookingDbEntity = bookingDbEntityRepository.findById(bookingId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Booking with id %s not found", bookingId)));
+        bookingDbEntity.setCheckinDate(LocalDate.now());
+        bookingDbEntityRepository.save(bookingDbEntity);
     }
 }

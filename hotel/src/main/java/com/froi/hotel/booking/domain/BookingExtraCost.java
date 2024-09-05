@@ -12,6 +12,7 @@ import lombok.Setter;
 @DomainEntity
 public class BookingExtraCost {
     private int id;
+    private String description;
     private double realPrice;
 
     public void validate() throws InvalidBookingFormatException {

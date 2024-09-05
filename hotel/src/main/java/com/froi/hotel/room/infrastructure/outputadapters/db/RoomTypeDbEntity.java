@@ -1,4 +1,4 @@
-package com.froi.hotel.room.infrastructure.outputadapters;
+package com.froi.hotel.room.infrastructure.outputadapters.db;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

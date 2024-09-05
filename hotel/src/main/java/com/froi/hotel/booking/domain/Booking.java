@@ -1,5 +1,6 @@
 package com.froi.hotel.booking.domain;
 
+import com.froi.hotel.booking.application.exceptions.BookingException;
 import com.froi.hotel.booking.domain.exceptions.InvalidBookingFormatException;
 import com.froi.hotel.booking.domain.exceptions.LogicBookingException;
 import com.froi.hotel.common.DomainEntity;
@@ -46,21 +47,32 @@ public class Booking {
         validateEntity();
     }
 
-    private void validateDates() throws LogicBookingException {
+    public void validateDates() throws LogicBookingException {
         if (checkinExpectedDate.isAfter(checkoutExpectedDate)) {
             throw new LogicBookingException("Checkin expected date should be before checkout expected date");
         }
         if (checkinExpectedDate.isEqual(checkoutExpectedDate)) {
             throw new LogicBookingException("Checkin expected date should be different from checkout expected date");
         }
-        if (checkinDate != null && checkinDate.isBefore(checkinExpectedDate)) {
-            throw new LogicBookingException("Checkin date should be after or same checkin expected expected date");
+        if (checkinDate != null && !isValidCheckinDate(checkinDate)) {
+            throw new LogicBookingException("Checkin date should be between checkin and checkout expected expected dates. Checkin expected Date: " + checkinExpectedDate + " Checkout expected Date: " + checkoutExpectedDate + ". Founded: " + checkinDate);
         }
         if (checkoutDate != null && checkoutDate.isBefore(checkoutExpectedDate)) {
             throw new LogicBookingException("Checkout date should be after checkout expected date");
         }
         if (checkinDate != null && checkoutDate != null && checkinDate.isAfter(checkoutDate)) {
             throw new LogicBookingException("Checkin date should be before checkout date");
+        }
+    }
+
+    private boolean isValidCheckinDate(LocalDate checkinDate) {
+        return checkinDate.isEqual(checkinExpectedDate)
+                || (checkinDate.isAfter(checkinExpectedDate) && checkinDate.isBefore(checkoutExpectedDate));
+    }
+
+    public void validateIsNotCheckin() throws BookingException {
+        if (checkinDate != null) {
+            throw new BookingException("Booking already checked in");
         }
     }
 

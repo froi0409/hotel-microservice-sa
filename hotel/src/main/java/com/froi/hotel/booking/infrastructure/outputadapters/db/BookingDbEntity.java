@@ -1,4 +1,4 @@
-package com.froi.hotel.booking.infrastructure.outputadapters;
+package com.froi.hotel.booking.infrastructure.outputadapters.db;
 
 import com.froi.hotel.booking.domain.Booking;
 import jakarta.persistence.Column;

@@ -1,4 +1,4 @@
-package com.froi.hotel.room.infrastructure.outputports;
+package com.froi.hotel.room.infrastructure.outputports.db;
 
 import com.froi.hotel.common.exceptions.IllegalEnumException;
 import com.froi.hotel.room.domain.Room;

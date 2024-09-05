@@ -1,4 +1,4 @@
-package com.froi.hotel.booking.infrastructure.inputports;
+package com.froi.hotel.booking.infrastructure.inputports.db;
 
 import com.froi.hotel.booking.application.exceptions.BookingException;
 import com.froi.hotel.booking.application.makebookingusecase.MakeBookingRequest;
