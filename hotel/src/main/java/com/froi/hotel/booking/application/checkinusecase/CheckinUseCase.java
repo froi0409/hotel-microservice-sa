@@ -12,6 +12,9 @@ import com.froi.hotel.common.UseCase;
 import com.froi.hotel.common.exceptions.NetworkMicroserviceException;
 import com.froi.hotel.hotel.domain.Hotel;
 import com.froi.hotel.hotel.infrastructure.outputadapters.HotelDbOutputAdapter;
+import com.froi.hotel.room.domain.Room;
+import com.froi.hotel.room.infrastructure.outputadapters.db.RoomDbOutputAdapter;
+import com.froi.hotel.room.infrastructure.outputadapters.restapi.FindDiscountsRestAdapter;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,12 +30,16 @@ public class CheckinUseCase implements PayCheckinInputPort {
     private PayBillOutputPort payBillOutputPort;
     private BookingDbOutputAdapter bookingDbOutputAdapter;
     private HotelDbOutputAdapter hotelDbOutputAdapter;
+    private FindDiscountsRestAdapter findDiscountsRestAdapter;
+    private RoomDbOutputAdapter roomDbOutputAdapter;
 
     @Autowired
-    public CheckinUseCase(BookingDbOutputAdapter bookingDbOutputAdapter, HotelDbOutputAdapter hotelDbOutputAdapter, PayBillOutputPort payBillOutputPort) {
+    public CheckinUseCase(BookingDbOutputAdapter bookingDbOutputAdapter, HotelDbOutputAdapter hotelDbOutputAdapter, PayBillOutputPort payBillOutputPort, FindDiscountsRestAdapter findDiscountsRestAdapter, RoomDbOutputAdapter roomDbOutputAdapter) {
         this.bookingDbOutputAdapter = bookingDbOutputAdapter;
         this.hotelDbOutputAdapter = hotelDbOutputAdapter;
         this.payBillOutputPort = payBillOutputPort;
+        this.findDiscountsRestAdapter = findDiscountsRestAdapter;
+        this.roomDbOutputAdapter = roomDbOutputAdapter;
     }
 
     @Override
@@ -41,9 +48,13 @@ public class CheckinUseCase implements PayCheckinInputPort {
         Hotel hotel = hotelDbOutputAdapter.findHotelById(Integer.parseInt(payCheckinRequest.getHotelId()))
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Hotel with id %s not found", payCheckinRequest.getHotelId())));
         Booking booking = bookingDbOutputAdapter.findHotelBooking(payCheckinRequest.getBookingId(), payCheckinRequest.getHotelId());
+        Room room = roomDbOutputAdapter.findRoomById(hotel.getId(), booking.getRoom().getCode())
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Room with code %s not found in hotel %s", booking.getRoom().getCode(), hotel.getId())));
+        booking.setRoom(room);
+
         validateBooking(payCheckinRequest, booking);
         List<BillDetail> billDetails = addCostsList(booking);
-        List<BillDiscount> billDiscounts = addDiscounts();
+        List<BillDiscount> billDiscounts = addDiscounts(payCheckinRequest, booking);
 
         bookingDbOutputAdapter.updateCheckinDate(payCheckinRequest.getBookingId());
 
@@ -75,14 +86,31 @@ public class CheckinUseCase implements PayCheckinInputPort {
         List<BillDetail> billDetails = new ArrayList<>();
         for (BookingExtraCost cost : booking.getCostsList()) {
             billDetails.add(new BillDetail(cost.getDescription(), cost.getRealPrice()));
-            System.out.println(cost.getDescription());
         }
-
+        billDetails.add(new BillDetail("Mantenaince Cost", booking.getRoom().getMaintenanceCost()));
         return billDetails;
     }
 
-    private List<BillDiscount> addDiscounts() {
+    private List<BillDiscount> addDiscounts(PayCheckinRequest payCheckinRequest, Booking booking) {
+        LocalDate date = LocalDate.now();
         List<BillDiscount> billDiscounts = new ArrayList<>();
+
+        BillDiscount billDiscount = findDiscountsRestAdapter.findRoomDiscount(booking.getRoom().getCode(), payCheckinRequest.getHotelId(), date);
+        if (billDiscount != null) {
+            double percentage = (booking.getBookingPrice() / 100) * billDiscount.getDiscounted();
+            BillDiscount percentageDiscount = new BillDiscount("Room Discount-" + billDiscount.getDescription(), percentage);
+            billDiscounts.add(percentageDiscount);
+        }
+
+        if (payCheckinRequest.isHasDiscount()) {
+            BillDiscount customerDiscount = findDiscountsRestAdapter.findCustomerDiscount(payCheckinRequest.getCustomerNit(), date);
+            if (customerDiscount != null) {
+                double percentage = (booking.getBookingPrice() / 100) * customerDiscount.getDiscounted();
+                BillDiscount percentageDiscount = new BillDiscount("Customer Discount-" + customerDiscount.getDescription(), percentage);
+                billDiscounts.add(percentageDiscount);
+            }
+        }
+
         return billDiscounts;
     }
 }

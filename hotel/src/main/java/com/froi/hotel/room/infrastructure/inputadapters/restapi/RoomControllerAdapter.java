@@ -19,7 +19,7 @@ public class RoomControllerAdapter {
     }
 
     @RequestMapping(method = RequestMethod.HEAD, path = "/exists/{roomCode}/{hotel}")
-    public ResponseEntity<Void> existsRoom(@RequestParam String roomCode, String hotel) {
+    public ResponseEntity<Void> existsRoom(@PathVariable String roomCode, @PathVariable String hotel) {
         existsRoomInputPort.existsRoom(roomCode, hotel);
         return ResponseEntity.ok().build();
     }

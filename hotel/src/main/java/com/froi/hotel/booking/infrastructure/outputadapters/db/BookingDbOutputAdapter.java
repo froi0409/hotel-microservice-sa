@@ -7,6 +7,7 @@ import com.froi.hotel.booking.infrastructure.outputports.FindBookingsOutputPort;
 import com.froi.hotel.booking.infrastructure.outputports.MakeBookingOutputPort;
 import com.froi.hotel.booking.infrastructure.outputports.PayCheckinOutputPort;
 import com.froi.hotel.common.PersistenceAdapter;
+import com.froi.hotel.room.domain.Room;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,9 +43,15 @@ public class BookingDbOutputAdapter implements MakeBookingOutputPort, FindBookin
 
     @Override
     public Booking findHotelBooking(String bookingId, String hotelId) {
-        return bookingDbEntityRepository.findFirstByIdAndHotel(bookingId, Integer.valueOf(hotelId))
-                .map(BookingDbEntity::toDomain)
+        BookingDbEntity bookingDbEntity = bookingDbEntityRepository.findFirstByIdAndHotel(bookingId, Integer.valueOf(hotelId))
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Booking with id %s not found in hotel %s", bookingId, hotelId)));
+        Booking booking = bookingDbEntity.toDomain();
+
+        booking.setRoom(Room.builder()
+                .code(bookingDbEntity.getRoomCode())
+                .build());
+
+        return booking;
     }
 
     @Override

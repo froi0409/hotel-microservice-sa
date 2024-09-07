@@ -4,6 +4,6 @@ import lombok.Value;
 
 @Value
 public class BillDiscount {
-    private String description;
-    private double discounted;
+    String description;
+    double discounted;
 }
