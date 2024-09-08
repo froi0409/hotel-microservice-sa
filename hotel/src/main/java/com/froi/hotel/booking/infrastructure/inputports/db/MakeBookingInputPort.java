@@ -7,7 +7,7 @@ import com.froi.hotel.booking.domain.exceptions.LogicBookingException;
 
 public interface MakeBookingInputPort {
 
-    void makeBooking(MakeBookingRequest makeBookingRequest) throws BookingException, LogicBookingException, InvalidBookingFormatException;
+    String makeBooking(MakeBookingRequest makeBookingRequest) throws BookingException, LogicBookingException, InvalidBookingFormatException;
 
     // void makeInterruptedBooking(MakeBookingRequest makeBookingRequest);
 

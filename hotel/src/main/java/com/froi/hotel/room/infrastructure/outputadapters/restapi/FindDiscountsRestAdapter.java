@@ -2,6 +2,7 @@ package com.froi.hotel.room.infrastructure.outputadapters.restapi;
 
 import com.froi.hotel.booking.application.checkinusecase.BillDiscount;
 import com.froi.hotel.room.infrastructure.outputports.restapi.FindDiscountsOutputAdapter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +20,13 @@ public class FindDiscountsRestAdapter implements FindDiscountsOutputAdapter {
     @Value("${discounts.url}")
     String discountsUrl;
 
+    private RestTemplate restTemplate;
+
+    @Autowired
+    public FindDiscountsRestAdapter(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
     @Override
     public BillDiscount findRoomDiscount(String roomCode, String hotel, LocalDate date) {
         String url = discountsUrl + "/v1/discounts/findRoomDiscount/" + roomCode + "/" + hotel + "/" + date;
@@ -32,7 +40,6 @@ public class FindDiscountsRestAdapter implements FindDiscountsOutputAdapter {
     }
 
     private BillDiscount getDiscount(String url) {
-        RestTemplate restTemplate = new RestTemplate();
         try {
             HttpHeaders headers = new HttpHeaders();
 

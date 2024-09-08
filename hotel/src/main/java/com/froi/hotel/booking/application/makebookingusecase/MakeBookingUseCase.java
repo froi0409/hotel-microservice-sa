@@ -40,7 +40,7 @@ public class MakeBookingUseCase implements MakeBookingInputPort {
     }
 
     @Override
-    public void makeBooking(MakeBookingRequest makeBookingRequest) throws BookingException, LogicBookingException, InvalidBookingFormatException {
+    public String makeBooking(MakeBookingRequest makeBookingRequest) throws BookingException, LogicBookingException, InvalidBookingFormatException {
         LocalDate checkin = LocalDate.parse(makeBookingRequest.getCheckinExpectedDate());
         LocalDate checkout = LocalDate.parse(makeBookingRequest.getCheckoutExpectedDate());
 
@@ -57,7 +57,9 @@ public class MakeBookingUseCase implements MakeBookingInputPort {
         booking.calculateBookingPrice();
         booking.setBookingDate(LocalDate.now());
         booking.validate();
-        bookingDbOutputAdapter.makeBooking(booking);
+        booking = bookingDbOutputAdapter.makeBooking(booking);
+
+        return booking.getId().toString();
     }
 
     private ArrayList<BookingExtraCost> handleExtraCosts(MakeBookingRequest makeBookingRequest, LocalDate checkin, LocalDate checkout) {
