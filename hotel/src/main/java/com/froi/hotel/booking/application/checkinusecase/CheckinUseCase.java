@@ -97,15 +97,15 @@ public class CheckinUseCase implements PayCheckinInputPort {
 
         BillDiscount billDiscount = findDiscountsRestAdapter.findRoomDiscount(booking.getRoom().getCode(), payCheckinRequest.getHotelId(), date);
         if (billDiscount != null) {
-            double percentage = (booking.getBookingPrice() / 100) * billDiscount.getDiscounted();
+            double percentage = Math.round((booking.getBookingPrice() / 100) * billDiscount.getDiscounted() * 100.0) / 100.0;;
             BillDiscount percentageDiscount = new BillDiscount("Room Discount-" + billDiscount.getDescription(), percentage);
             billDiscounts.add(percentageDiscount);
         }
 
-        if (payCheckinRequest.isHasDiscount()) {
+        if (payCheckinRequest.isHasDiscount() && payCheckinRequest.getCustomerNit() != null) {
             BillDiscount customerDiscount = findDiscountsRestAdapter.findCustomerDiscount(payCheckinRequest.getCustomerNit(), date);
             if (customerDiscount != null) {
-                double percentage = (booking.getBookingPrice() / 100) * customerDiscount.getDiscounted();
+                double percentage = Math.round((booking.getBookingPrice() / 100) * customerDiscount.getDiscounted() * 100.0) / 100.0;
                 BillDiscount percentageDiscount = new BillDiscount("Customer Discount-" + customerDiscount.getDescription(), percentage);
                 billDiscounts.add(percentageDiscount);
             }
