@@ -1,6 +1,7 @@
 package com.froi.hotel.booking.infrastructure.outputports;
 
 import com.froi.hotel.booking.application.exceptions.BookingException;
+import com.froi.hotel.booking.application.findbookingusecase.BookingCostsInfo;
 import com.froi.hotel.booking.domain.Booking;
 import com.froi.hotel.booking.domain.BookingExtraCost;
 
@@ -12,4 +13,6 @@ public interface FindBookingsOutputPort {
     Booking findHotelBooking(String bookingId, String hotelId);
     Booking findBookingById(String bookingId);
     List<BookingExtraCost> findBookingExtraCosts(String bookingId) throws BookingException;
+
+    List<BookingCostsInfo> findAllCosts();
 }

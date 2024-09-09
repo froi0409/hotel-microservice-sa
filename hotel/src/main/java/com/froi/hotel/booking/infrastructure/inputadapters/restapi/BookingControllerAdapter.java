@@ -2,6 +2,7 @@ package com.froi.hotel.booking.infrastructure.inputadapters.restapi;
 
 import com.froi.hotel.booking.application.checkinusecase.PayCheckinRequest;
 import com.froi.hotel.booking.application.exceptions.BookingException;
+import com.froi.hotel.booking.application.findbookingusecase.BookingCostsInfo;
 import com.froi.hotel.booking.application.makebookingusecase.MakeBookingRequest;
 import com.froi.hotel.booking.domain.Booking;
 import com.froi.hotel.booking.domain.exceptions.InvalidBookingFormatException;
@@ -19,6 +20,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("hotels/v1/bookings")
@@ -48,7 +51,6 @@ public class BookingControllerAdapter {
     @PostMapping("/checkin")
     @PreAuthorize("hasRole('HOTEL_EMPLOYEE')")
     public ResponseEntity<byte[]> payCheckin(@RequestBody PayCheckinRequest payCheckinRequest) throws BookingException, NetworkMicroserviceException, LogicBookingException {
-        System.out.println("hola");
         byte[] response = payCheckinInputPort.payCheckin(payCheckinRequest);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=factura_hotel.pdf");
@@ -66,6 +68,15 @@ public class BookingControllerAdapter {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(BookingReportResponse.fromDomain(booking));
+    }
+
+    @GetMapping("/costs")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<BookingCostsInfo>> getCostsReport() {
+        List<BookingCostsInfo> costsReport = findBookingInputPort.getCostsReport();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(costsReport);
     }
 
     @GetMapping("/hello")

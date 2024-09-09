@@ -1,10 +1,13 @@
 package com.froi.hotel.booking.application.findbookingusecase;
 
 import com.froi.hotel.booking.domain.Booking;
+import com.froi.hotel.booking.infrastructure.inputadapters.restapi.CostsReportResponse;
 import com.froi.hotel.booking.infrastructure.inputports.restapi.FindBookingInputPort;
 import com.froi.hotel.booking.infrastructure.outputadapters.db.BookingDbOutputAdapter;
 import com.froi.hotel.common.UseCase;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 @UseCase
 public class FindBookingUseCase implements FindBookingInputPort {
@@ -20,4 +23,10 @@ public class FindBookingUseCase implements FindBookingInputPort {
     public Booking findBookingById(String bookingId) {
         return bookingDbOutputAdapter.findBookingById(bookingId);
     }
+
+    @Override
+    public List<BookingCostsInfo> getCostsReport() {
+        return bookingDbOutputAdapter.findAllCosts();
+    }
+
 }

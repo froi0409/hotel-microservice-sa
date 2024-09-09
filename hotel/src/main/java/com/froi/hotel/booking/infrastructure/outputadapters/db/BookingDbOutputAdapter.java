@@ -1,6 +1,7 @@
 package com.froi.hotel.booking.infrastructure.outputadapters.db;
 
 import com.froi.hotel.booking.application.exceptions.BookingException;
+import com.froi.hotel.booking.application.findbookingusecase.BookingCostsInfo;
 import com.froi.hotel.booking.domain.Booking;
 import com.froi.hotel.booking.domain.BookingExtraCost;
 import com.froi.hotel.booking.infrastructure.outputports.FindBookingsOutputPort;
@@ -97,6 +98,11 @@ public class BookingDbOutputAdapter implements MakeBookingOutputPort, FindBookin
         }
 
         return extraCosts;
+    }
+
+    @Override
+    public List<BookingCostsInfo> findAllCosts() {
+        return bookingDbEntityRepository.findBookingDetailsWithMaintenanceCost();
     }
 
     @Override
