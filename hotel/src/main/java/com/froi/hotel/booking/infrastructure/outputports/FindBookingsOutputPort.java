@@ -9,8 +9,7 @@ import java.util.List;
 
 public interface FindBookingsOutputPort {
     List<Booking> findBookingBetweenCheckinAndCheckout(Integer hotel, String room, LocalDate checkin, LocalDate checkout);
-
     Booking findHotelBooking(String bookingId, String hotelId);
-
+    Booking findBookingById(String bookingId);
     List<BookingExtraCost> findBookingExtraCosts(String bookingId) throws BookingException;
 }

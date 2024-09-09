@@ -7,7 +7,13 @@ import com.froi.hotel.booking.infrastructure.outputports.FindBookingsOutputPort;
 import com.froi.hotel.booking.infrastructure.outputports.MakeBookingOutputPort;
 import com.froi.hotel.booking.infrastructure.outputports.PayCheckinOutputPort;
 import com.froi.hotel.common.PersistenceAdapter;
+import com.froi.hotel.hotel.domain.Hotel;
+import com.froi.hotel.hotel.infrastructure.outputadapters.HotelDbEntity;
+import com.froi.hotel.hotel.infrastructure.outputadapters.HotelDbEntityRepository;
 import com.froi.hotel.room.domain.Room;
+import com.froi.hotel.room.infrastructure.outputadapters.db.RoomDbEntity;
+import com.froi.hotel.room.infrastructure.outputadapters.db.RoomDbEntityPK;
+import com.froi.hotel.room.infrastructure.outputadapters.db.RoomDbEntityRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +29,15 @@ public class BookingDbOutputAdapter implements MakeBookingOutputPort, FindBookin
     private BookingDbEntityRepository bookingDbEntityRepository;
     private BookingDetailCostDbEntityRepository bookingDetailCostDbEntityRepository;
     private BookingExtraCostDbEntityRepository bookingExtraCostDbEntityRepository;
-
+    private HotelDbEntityRepository hotelDbEntityRepository;
+    private RoomDbEntityRepository roomDbEntityRepository;
     @Autowired
-    public BookingDbOutputAdapter(BookingDbEntityRepository bookingDbEntityRepository, BookingDetailCostDbEntityRepository bookingDetailCostDbEntityRepository, BookingExtraCostDbEntityRepository bookingExtraCostDbEntityRepository) {
+    public BookingDbOutputAdapter(BookingDbEntityRepository bookingDbEntityRepository, BookingDetailCostDbEntityRepository bookingDetailCostDbEntityRepository, BookingExtraCostDbEntityRepository bookingExtraCostDbEntityRepository, HotelDbEntityRepository hotelDbEntityRepository, RoomDbEntityRepository roomDbEntityRepository) {
         this.bookingDbEntityRepository = bookingDbEntityRepository;
         this.bookingDetailCostDbEntityRepository = bookingDetailCostDbEntityRepository;
         this.bookingExtraCostDbEntityRepository = bookingExtraCostDbEntityRepository;
+        this.hotelDbEntityRepository = hotelDbEntityRepository;
+        this.roomDbEntityRepository = roomDbEntityRepository;
     }
 
 
@@ -50,6 +59,26 @@ public class BookingDbOutputAdapter implements MakeBookingOutputPort, FindBookin
         booking.setRoom(Room.builder()
                 .code(bookingDbEntity.getRoomCode())
                 .build());
+
+        return booking;
+    }
+
+    @Override
+    public Booking findBookingById(String bookingId) {
+        BookingDbEntity bookingDbEntity = bookingDbEntityRepository.findById(bookingId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Booking with id %s not found", bookingId)));
+        Booking booking = bookingDbEntity.toDomain();
+
+        Hotel hotel = hotelDbEntityRepository.findById(bookingDbEntity.getHotel())
+                .map(HotelDbEntity::toDomain)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Hotel with id %s not found", bookingDbEntity.getHotel())));
+
+        Room room = roomDbEntityRepository.findById(new RoomDbEntityPK(bookingDbEntity.getRoomCode(), hotel.getId()))
+                .map(RoomDbEntity::toDomain)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Room with code %s not found", bookingDbEntity.getRoomCode())));
+
+        booking.setHotel(hotel);
+        booking.setRoom(room);
 
         return booking;
     }

@@ -3,9 +3,11 @@ package com.froi.hotel.booking.infrastructure.inputadapters.restapi;
 import com.froi.hotel.booking.application.checkinusecase.PayCheckinRequest;
 import com.froi.hotel.booking.application.exceptions.BookingException;
 import com.froi.hotel.booking.application.makebookingusecase.MakeBookingRequest;
+import com.froi.hotel.booking.domain.Booking;
 import com.froi.hotel.booking.domain.exceptions.InvalidBookingFormatException;
 import com.froi.hotel.booking.domain.exceptions.LogicBookingException;
 import com.froi.hotel.booking.infrastructure.inputports.db.MakeBookingInputPort;
+import com.froi.hotel.booking.infrastructure.inputports.restapi.FindBookingInputPort;
 import com.froi.hotel.booking.infrastructure.inputports.restapi.PayCheckinInputPort;
 import com.froi.hotel.common.WebAdapter;
 import com.froi.hotel.common.exceptions.NetworkMicroserviceException;
@@ -25,11 +27,13 @@ import org.springframework.web.bind.annotation.*;
 public class BookingControllerAdapter {
     private MakeBookingInputPort makeBookingInputPort;
     private PayCheckinInputPort payCheckinInputPort;
+    private FindBookingInputPort findBookingInputPort;
 
     @Autowired
-    public BookingControllerAdapter(MakeBookingInputPort makeBookingInputPort, PayCheckinInputPort payCheckinInputPort) {
+    public BookingControllerAdapter(MakeBookingInputPort makeBookingInputPort, PayCheckinInputPort payCheckinInputPort, FindBookingInputPort findBookingInputPort) {
         this.makeBookingInputPort = makeBookingInputPort;
         this.payCheckinInputPort = payCheckinInputPort;
+        this.findBookingInputPort = findBookingInputPort;
     }
 
     @PostMapping("/make")
@@ -53,6 +57,15 @@ public class BookingControllerAdapter {
                 .headers(headers)
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(response);
+    }
+
+    @GetMapping("/{bookingId}")
+    @PreAuthorize("hasAnyRole('HOTEL_EMPLOYEE', 'ADMIN')")
+    public ResponseEntity<BookingReportResponse> getBooking(@PathVariable String bookingId) {
+        Booking booking = findBookingInputPort.findBookingById(bookingId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(BookingReportResponse.fromDomain(booking));
     }
 
     @GetMapping("/hello")
