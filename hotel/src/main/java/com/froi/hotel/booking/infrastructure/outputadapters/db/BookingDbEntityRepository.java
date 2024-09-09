@@ -25,14 +25,12 @@ public interface BookingDbEntityRepository extends JpaRepository<BookingDbEntity
             "WHERE b.checkinDate IS NOT NULL")
     List<BookingCostsInfo> findBookingDetailsWithMaintenanceCost();
 
-    @Query(value = "select " +
-            "room_code, " +
-            "hotel, " +
-            "count(*) " +
-            "from booking " +
-            "group by room_code, hotel " +
-            "order by count(*) desc " +
-            "limit 1", nativeQuery = true)
+    @Query(value = "SELECT b.room_code, h.id AS hotel_id, h.name AS hotel_name, COUNT(*) " +
+            "FROM booking b " +
+            "JOIN hotel h ON h.id = b.hotel " +
+            "GROUP BY h.id, b.room_code, h.name " +
+            "ORDER BY COUNT(*) DESC " +
+            "LIMIT 1", nativeQuery = true)
     List<Object[]> findTopRoomAndHotel();
 
 

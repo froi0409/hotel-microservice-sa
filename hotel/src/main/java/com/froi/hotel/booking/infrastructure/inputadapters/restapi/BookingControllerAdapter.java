@@ -2,6 +2,7 @@ package com.froi.hotel.booking.infrastructure.inputadapters.restapi;
 
 import com.froi.hotel.booking.application.checkinusecase.PayCheckinRequest;
 import com.froi.hotel.booking.application.exceptions.BookingException;
+import com.froi.hotel.booking.application.findbookingusecase.BestRoomResponse;
 import com.froi.hotel.booking.application.findbookingusecase.BookingCostsInfo;
 import com.froi.hotel.booking.application.makebookingusecase.MakeBookingRequest;
 import com.froi.hotel.booking.domain.Booking;
@@ -93,15 +94,12 @@ public class BookingControllerAdapter {
 
     @GetMapping("/bestRoomBookings")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<BookingReportResponse>> getBestRoomBookings() {
-        List<BookingReportResponse> bookings = findBookingInputPort.findBestRoomBookings()
-                .stream()
-                .map(BookingReportResponse::fromDomain)
-                .toList();
+    public ResponseEntity<BestRoomResponse> getBestRoomBookings() {
+        BestRoomResponse response = findBookingInputPort.findBestRoomBookings();
 
             return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(bookings);
+                .body(response);
     }
 
     @GetMapping("/hello")

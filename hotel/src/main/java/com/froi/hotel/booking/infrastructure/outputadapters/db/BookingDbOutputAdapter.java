@@ -1,6 +1,7 @@
 package com.froi.hotel.booking.infrastructure.outputadapters.db;
 
 import com.froi.hotel.booking.application.exceptions.BookingException;
+import com.froi.hotel.booking.application.findbookingusecase.BestRoomResponse;
 import com.froi.hotel.booking.application.findbookingusecase.BookingCostsInfo;
 import com.froi.hotel.booking.domain.Booking;
 import com.froi.hotel.booking.domain.BookingExtraCost;
@@ -22,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -128,7 +128,7 @@ public class BookingDbOutputAdapter implements MakeBookingOutputPort, FindBookin
     }
 
     @Override
-    public List<Booking> findBestRoomBookings() {
+    public BestRoomResponse findBestRoomBookings() {
         List<Object[]> topRoomAndHotel = bookingDbEntityRepository.findTopRoomAndHotel();
         if (topRoomAndHotel.isEmpty()) {
             throw new EntityNotFoundException("No bookings found");
@@ -136,12 +136,19 @@ public class BookingDbOutputAdapter implements MakeBookingOutputPort, FindBookin
 
         Object[] topRoomAndHotel1 = topRoomAndHotel.getFirst();
         String roomCode = topRoomAndHotel1[0].toString();
-        String hotel = topRoomAndHotel1[1].toString();
+        String hotelId = topRoomAndHotel1[1].toString();
+        String hotelName = topRoomAndHotel1[2].toString();
+        Integer count = Integer.valueOf(topRoomAndHotel1[3].toString());
 
-        System.out.println("Room code: " + roomCode);
-        System.out.println("Hotel: " + hotel);
+        List<Booking> bookings = findBookingsByRoomCodeAndHotelId(roomCode, hotelId);
 
-        return findBookingsByRoomCodeAndHotelId(roomCode, hotel);
+        return BestRoomResponse.builder()
+                .roomCode(roomCode)
+                .hotelId(hotelId)
+                .hotelName(hotelName)
+                .bookingsCount(count)
+                .bookings(bookings)
+                .build();
     }
 
 

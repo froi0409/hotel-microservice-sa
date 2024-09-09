@@ -35,7 +35,7 @@ public class FindBookingUseCase implements FindBookingInputPort {
     }
 
     @Override
-    public List<Booking> findBestRoomBookings() {
+    public BestRoomResponse findBestRoomBookings() {
         return bookingDbOutputAdapter.findBestRoomBookings();
     }
 
