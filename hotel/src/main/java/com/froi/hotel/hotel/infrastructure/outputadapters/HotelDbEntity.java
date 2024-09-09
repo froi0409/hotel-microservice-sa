@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "hotel", schema = "public")
 @Getter
@@ -39,5 +41,15 @@ public class HotelDbEntity {
                 .phone2(phone2)
                 .city(city)
                 .build();
+    }
+
+    public static HotelDbEntity fromDomain(Hotel hotel) {
+        return new HotelDbEntity(
+                hotel.getId(),
+                hotel.getName(),
+                hotel.getPhone1(),
+                hotel.getPhone2(),
+                hotel.getCity()
+        );
     }
 }

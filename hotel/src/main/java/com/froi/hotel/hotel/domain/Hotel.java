@@ -25,6 +25,9 @@ public class Hotel {
         if (phone2 != null && (!StringUtils.isNumeric(phone2) || phone1.contains("-"))) {
             throw new InvalidHotelFormatException(String.format("Phone 2 should be a valid phone number. Founded value: %s", phone2));
         }
+        if (city == null) {
+            throw  new InvalidHotelFormatException("City should be a valid city id");
+        }
     }
 
 }

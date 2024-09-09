@@ -27,4 +27,15 @@ public class RoomDbEntity {
                 .capacity(roomType.getCapacity())
                 .build();
     }
+
+    public static RoomDbEntity fromDomain(Room room, Integer roomType) {
+        RoomDbEntity roomDbEntity = new RoomDbEntity();
+        roomDbEntity.setId(new RoomDbEntityPK(room.getCode(), room.getHotelId()));
+
+        RoomTypeDbEntity roomTypeDbEntity = new RoomTypeDbEntity();
+        roomTypeDbEntity.setId(roomType);
+
+        roomDbEntity.setRoomType(roomTypeDbEntity);
+        return roomDbEntity;
+    }
 }

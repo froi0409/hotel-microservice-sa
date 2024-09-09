@@ -1,10 +1,13 @@
 package com.froi.hotel.common.infrastructure.restapi;
 
 import com.froi.hotel.booking.application.exceptions.BookingException;
+import com.froi.hotel.booking.domain.exceptions.InvalidBookingFormatException;
 import com.froi.hotel.booking.domain.exceptions.LogicBookingException;
 import com.froi.hotel.common.exceptions.DuplicatedEntityException;
 import com.froi.hotel.common.exceptions.IllegalEnumException;
 import com.froi.hotel.common.exceptions.NetworkMicroserviceException;
+import com.froi.hotel.hotel.domain.exceptions.InvalidHotelFormatException;
+import com.froi.hotel.room.domain.exceptions.InvalidRoomFormatException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,4 +57,26 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());
     }
+
+    @ExceptionHandler(InvalidRoomFormatException.class)
+    public ResponseEntity<String> handleInvalidRoomFormatException(InvalidRoomFormatException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler(InvalidBookingFormatException.class)
+    public ResponseEntity<String> handleInvalidBookingFormatException(InvalidBookingFormatException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler(InvalidHotelFormatException.class)
+    public ResponseEntity<String> handleInvalidHotelFormatException(InvalidHotelFormatException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
+    }
+
 }

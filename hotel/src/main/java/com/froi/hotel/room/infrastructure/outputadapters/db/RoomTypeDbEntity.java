@@ -1,5 +1,6 @@
 package com.froi.hotel.room.infrastructure.outputadapters.db;
 
+import com.froi.hotel.room.domain.RoomType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
