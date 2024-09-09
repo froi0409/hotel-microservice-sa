@@ -79,6 +79,31 @@ public class BookingControllerAdapter {
                 .body(costsReport);
     }
 
+    @GetMapping("/allBookings/{roomCode}/{hotelId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<BookingReportResponse>> getBookingsByRoomCodeAndHotelId(@PathVariable String roomCode, @PathVariable String hotelId) {
+        List<BookingReportResponse> bookings = findBookingInputPort.findBookingsByRoomCodeAndHotelId(roomCode, hotelId)
+                .stream()
+                .map(BookingReportResponse::fromDomain)
+                .toList();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(bookings);
+    }
+
+    @GetMapping("/bestRoomBookings")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<BookingReportResponse>> getBestRoomBookings() {
+        List<BookingReportResponse> bookings = findBookingInputPort.findBestRoomBookings()
+                .stream()
+                .map(BookingReportResponse::fromDomain)
+                .toList();
+
+            return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(bookings);
+    }
+
     @GetMapping("/hello")
     public String hello() {
         return "Hello World! :D";

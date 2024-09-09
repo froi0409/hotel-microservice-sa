@@ -20,7 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -104,6 +106,44 @@ public class BookingDbOutputAdapter implements MakeBookingOutputPort, FindBookin
     public List<BookingCostsInfo> findAllCosts() {
         return bookingDbEntityRepository.findBookingDetailsWithMaintenanceCost();
     }
+
+    @Override
+    public List<Booking> findBookingsByRoomCodeAndHotelId(String roomCode, String hotelId) {
+        List<BookingDbEntity> bookingsDbEntity = bookingDbEntityRepository.findAllByRoomCodeAndHotel(roomCode, Integer.valueOf(hotelId));
+        List<Booking> bookings = new ArrayList<>();
+        for (BookingDbEntity bookingDb: bookingsDbEntity) {
+            Booking booking = bookingDb.toDomain();
+            Hotel hotel = hotelDbEntityRepository.findById(bookingDb.getHotel())
+                    .map(HotelDbEntity::toDomain)
+                    .orElseThrow(() -> new EntityNotFoundException(String.format("Hotel with id %s not found", bookingDb.getHotel())));
+            Room room = roomDbEntityRepository.findById(new RoomDbEntityPK(bookingDb.getRoomCode(), hotel.getId()))
+                    .map(RoomDbEntity::toDomain)
+                    .orElseThrow(() -> new EntityNotFoundException(String.format("Room with code %s not found", bookingDb.getRoomCode())));
+            booking.setHotel(hotel);
+            booking.setRoom(room);
+            bookings.add(booking);
+        }
+
+        return bookings;
+    }
+
+    @Override
+    public List<Booking> findBestRoomBookings() {
+        List<Object[]> topRoomAndHotel = bookingDbEntityRepository.findTopRoomAndHotel();
+        if (topRoomAndHotel.isEmpty()) {
+            throw new EntityNotFoundException("No bookings found");
+        }
+
+        Object[] topRoomAndHotel1 = topRoomAndHotel.getFirst();
+        String roomCode = topRoomAndHotel1[0].toString();
+        String hotel = topRoomAndHotel1[1].toString();
+
+        System.out.println("Room code: " + roomCode);
+        System.out.println("Hotel: " + hotel);
+
+        return findBookingsByRoomCodeAndHotelId(roomCode, hotel);
+    }
+
 
     @Override
     public Optional<BookingExtraCost> findExtraCost(Integer id) {

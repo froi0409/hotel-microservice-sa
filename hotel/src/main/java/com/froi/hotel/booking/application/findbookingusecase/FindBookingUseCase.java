@@ -29,4 +29,14 @@ public class FindBookingUseCase implements FindBookingInputPort {
         return bookingDbOutputAdapter.findAllCosts();
     }
 
+    @Override
+    public List<Booking> findBookingsByRoomCodeAndHotelId(String roomCode, String hotelId) {
+        return bookingDbOutputAdapter.findBookingsByRoomCodeAndHotelId(roomCode, hotelId);
+    }
+
+    @Override
+    public List<Booking> findBestRoomBookings() {
+        return bookingDbOutputAdapter.findBestRoomBookings();
+    }
+
 }

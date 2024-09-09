@@ -13,6 +13,7 @@ public interface FindBookingsOutputPort {
     Booking findHotelBooking(String bookingId, String hotelId);
     Booking findBookingById(String bookingId);
     List<BookingExtraCost> findBookingExtraCosts(String bookingId) throws BookingException;
-
     List<BookingCostsInfo> findAllCosts();
+    List<Booking> findBookingsByRoomCodeAndHotelId(String roomCode, String hotelId);
+    List<Booking> findBestRoomBookings();
 }

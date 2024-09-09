@@ -11,4 +11,8 @@ public interface FindBookingInputPort {
     Booking findBookingById(String bookingId);
 
     List<BookingCostsInfo> getCostsReport();
+
+    List<Booking> findBookingsByRoomCodeAndHotelId(String roomCode, String hotelId);
+
+    List<Booking> findBestRoomBookings();
 }

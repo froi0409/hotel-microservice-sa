@@ -3,6 +3,8 @@ package com.froi.hotel.booking.infrastructure.inputadapters.restapi;
 import com.froi.hotel.booking.domain.Booking;
 import lombok.Value;
 
+import java.awt.print.Book;
+
 @Value
 public class BookingReportResponse {
     String bookingId;
@@ -17,6 +19,8 @@ public class BookingReportResponse {
     String checkinDate;
 
     public static BookingReportResponse fromDomain(Booking booking) {
+        String checkinDate = booking.getCheckinDate() != null ? booking.getCheckinDate().toString() : null;
+
         return new BookingReportResponse(
                 booking.getId().toString(),
                 booking.getBookingDate().toString(),
@@ -27,7 +31,7 @@ public class BookingReportResponse {
                 booking.getRoom().getCode(),
                 booking.getCheckinExpectedDate().toString(),
                 booking.getCheckoutExpectedDate().toString(),
-                booking.getCheckinDate().toString()
+                checkinDate
         );
     }
 
